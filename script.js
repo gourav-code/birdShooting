@@ -18,6 +18,7 @@ let backgroundMusic = new Audio();
 backgroundMusic.src = 'neon-gaming-128925.mp3';
 let score = 0;
 let gameOver = false;
+let isPaused = false;
 ctx.font = '50px Impact';
 
 function drawScore(){
@@ -53,15 +54,21 @@ function restartGame() {
     animate(0);
 }
 
+function togglePause() {
+    if (gameOver) return; // can't pause if game is already over
+
+    isPaused = !isPaused;
+
+    if (!isPaused) {
+        // resume the loop
+        lastTime = performance.now();
+        animate(lastTime);
+    }
+}
+
 
 window.addEventListener('click', (clickCoord)=> {
-
-    // if (gameOver) {
-    //     restartGame();
-    //     return;
-    // }
-
-    // playBackgroundMusic();
+    
     const detectedColor = collisionCTX.getImageData(clickCoord.x, clickCoord.y, 1, 1);
     const pointColor = detectedColor.data;
     // console.log(pointColor);
@@ -77,26 +84,28 @@ window.addEventListener('click', (clickCoord)=> {
 window.addEventListener('keydown', (e) => {
     if (gameOver && e.code === 'Space') {
         restartGame();
+    } else if (!gameOver && e.code === 'Space') {
+        togglePause();
     }
 });
 
-// const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-// let audioBuffer;
-// async function loadAudio(url) {
-//     const response = await fetch(url);
-//     const arrayBuffer = await response.arrayBuffer();
-//     audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-// }
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let audioBuffer;
+async function loadAudio(url) {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+}
 
-// loadAudio('neon-gaming-128925.mp3');
+loadAudio('neon-gaming-128925.mp3');
 
-// function playBackgroundMusic() {
-//     const source = audioContext.createBufferSource();
-//     source.buffer = audioBuffer;
-//     source.loop = true;
-//     source.connect(audioContext.destination);
-//     source.start(0);
-// }
+function playBackgroundMusic() {
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.loop = true;
+    source.connect(audioContext.destination);
+    source.start(0);
+}
 
 
 
@@ -175,6 +184,8 @@ class Bird {
 }
 
 function animate(timestamp){
+    // if (timestamp == 0) playBackgroundMusic();
+    if (isPaused) return; // stop updating while paused
     ctx.clearRect(0,0,canvas.width,canvas.height);
     collisionCTX.clearRect(0,0,canvas.width,canvas.height);
     let deltaTime = timestamp - lastTime;
