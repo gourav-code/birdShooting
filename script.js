@@ -39,7 +39,7 @@ function drawgameOver(){
     
     ctx.font = '30px Impact';
     ctx.fillStyle = 'yellow';
-    ctx.fillText('Click to Restart', canvas.width/2, canvas.height/2 + 60);
+    ctx.fillText('Press SPACE to Restart', canvas.width/2, canvas.height/2 + 60);
     ctx.font = '50px Impact'; // reset font for next frame
 }
 
@@ -56,10 +56,10 @@ function restartGame() {
 
 window.addEventListener('click', (clickCoord)=> {
 
-    if (gameOver) {
-        restartGame();
-        return;
-    }
+    // if (gameOver) {
+    //     restartGame();
+    //     return;
+    // }
 
     // playBackgroundMusic();
     const detectedColor = collisionCTX.getImageData(clickCoord.x, clickCoord.y, 1, 1);
@@ -72,6 +72,12 @@ window.addEventListener('click', (clickCoord)=> {
             explosion.push(new Explosion(tmp.x, tmp.y, tmp.width));
         }
     });
+});
+
+window.addEventListener('keydown', (e) => {
+    if (gameOver && e.code === 'Space') {
+        restartGame();
+    }
 });
 
 // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
