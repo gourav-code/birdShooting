@@ -14,8 +14,6 @@ let lastTime = 0;
 let nextBirdTime = 0;
 let bird = [];
 let explosion = [];
-let backgroundMusic = new Audio();
-backgroundMusic.src = 'neon-gaming-128925.mp3';
 let score = 0;
 let gameOver = false;
 let isPaused = false;
@@ -71,7 +69,6 @@ window.addEventListener('click', (clickCoord)=> {
     
     const detectedColor = collisionCTX.getImageData(clickCoord.x, clickCoord.y, 1, 1);
     const pointColor = detectedColor.data;
-    // console.log(pointColor);
     bird.forEach( tmp => {
         if(pointColor[0] == tmp.color[0] && pointColor[1] == tmp.color[1] && pointColor[2] == tmp.color[2]){
             tmp.marked = true;
@@ -89,23 +86,9 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-let audioBuffer;
-async function loadAudio(url) {
-    const response = await fetch(url);
-    const arrayBuffer = await response.arrayBuffer();
-    audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-}
-
-loadAudio('neon-gaming-128925.mp3');
-
-function playBackgroundMusic() {
-    const source = audioContext.createBufferSource();
-    source.buffer = audioBuffer;
-    source.loop = true;
-    source.connect(audioContext.destination);
-    source.start(0);
-}
+const backgroundMusic = document.getElementById("bgMusic");
+backgroundMusic.volume = 0.5;
+backgroundMusic.play().catch(err => console.log("Autoplay blocked:", err));
 
 
 
@@ -184,7 +167,7 @@ class Bird {
 }
 
 function animate(timestamp){
-    // if (timestamp == 0) playBackgroundMusic();
+    
     if (isPaused) return; // stop updating while paused
     ctx.clearRect(0,0,canvas.width,canvas.height);
     collisionCTX.clearRect(0,0,canvas.width,canvas.height);
